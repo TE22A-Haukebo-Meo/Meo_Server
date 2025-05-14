@@ -7,7 +7,7 @@ public class NetworkingServer {
         Socket client;
 
         // Default port number we are going to use
-        int portnumber = 1234;
+        int portnumber = 5000;
         if (args.length > 1){
             portnumber = Integer.parseInt(args[0]);
         }
@@ -42,13 +42,40 @@ public class NetworkingServer {
                 System.out.println("Message received from client = " + msgFromClient);
 
                 // Send response to the client
-                if(msgFromClient != null &&
-                msgFromClient.equalsIgnoreCase("bye")) {
+                if(msgFromClient != null) {
                     OutputStream clientOut = client.getOutputStream();
                     PrintWriter pw = new PrintWriter(clientOut, true);
-                    String ansMsg = "Hello, " + msgFromClient;
-                    pw.println(ansMsg);
-                }
+                    try {
+                        if (msgFromClient.contains("*")) {
+                            String[] parts = msgFromClient.split("\\*");
+                            int num1 = Integer.parseInt(parts[0]);
+                            int num2 = Integer.parseInt(parts[1]);
+                            pw.println(msgFromClient + " är lika med " + (num1 * num2));
+                        } else if (msgFromClient.contains("+")) {
+                            String[] parts = msgFromClient.split("\\+");
+                            int num1 = Integer.parseInt(parts[0]);
+                            int num2 = Integer.parseInt(parts[1]);
+                            pw.println(msgFromClient + " är lika med " + (num1 + num2));
+                        } else if (msgFromClient.contains("-")) {
+                            String[] parts = msgFromClient.split("-");
+                            int num1 = Integer.parseInt(parts[0]);
+                            int num2 = Integer.parseInt(parts[1]);
+                            pw.println(msgFromClient + " är lika med " + (num1 - num2)); 
+                        } else if (msgFromClient.contains("/")) {
+                            String[] parts = msgFromClient.split("/");
+                            int num1 = Integer.parseInt(parts[0]);
+                            int num2 = Integer.parseInt(parts[1]);
+                            if (num2 == 0) {
+                                pw.println("Fel: Division med noll");
+                            } 
+                            pw.println(msgFromClient + " är lika med " + (num1 / num2));
+                        } else {
+                            pw.println("Ogiltigt uttryck"); 
+                        }
+                        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                        System.out.println("Felaktigt format på uttrycket"); 
+                        }
+                    }
 
                 // Close sockets
                 if(msgFromClient != null &&
@@ -58,7 +85,7 @@ public class NetworkingServer {
                     break;
                 }
             } catch(IOException ie) {
-                // Skriv ett lämpligt error meddelande
+                System.out.println("Ojzan, foonka inte");
             }
         }
     }
